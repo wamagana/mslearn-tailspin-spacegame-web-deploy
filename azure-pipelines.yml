@@ -1,9 +1,7 @@
 trigger:
 - '*'
-
 variables:
   buildConfiguration: 'Release'
-
 stages:
 - stage: Build
   displayName: Build the web Application
@@ -54,3 +52,25 @@ stages:
           zipAfterPublish: true
       - publish: '$(Build.ArtifactStagingDirectory)'
         artifact: drop
+- stage: Deploy
+  displayName: Deploy the web application
+  dependsOn: Build
+  jobs:
+  - deployment: Deploy
+    pool:
+      vmImage: ubuntu-20.04
+    environment: dev
+    variables:
+    - group: Release
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - download: current
+            artifact: drop
+          - task: AzureWebApp@1
+            displayName: 'Azure App Service Deploy: WebSite'
+            inputs:
+              azureSubscription: Resource Manager -Tailspin - Space Game
+              appName: $(WebAppName)
+              package: $(Pipeline.Workspace)/drop/$(buildConfiguration)/*.zip
