@@ -111,16 +111,16 @@ stages:
               appName: '$(WebAppNameTest)'
               package: '$(Pipeline.Workspace)/drop/$(buildConfiguration)/*.zip'
 
-- stage: 'Staging'
-  displayName: 'Deploy to the staging environment'
+- stage: Staging
+  displayName: Deploy to the staging environment
   dependsOn: Test
   jobs:
   - deployment: Deploy
     pool:
-      vmImage: 'ubuntu-20.04'
+      vmImage: ubuntu-20.04
     environment: staging
     variables:
-    - group: 'Release'
+    - group: Release
     strategy:
       runOnce:
         deploy:
@@ -130,6 +130,19 @@ stages:
           - task: AzureWebApp@1
             displayName: 'Azure App Service Deploy: website'
             inputs:
-              azureSubscription: 'Resource Manager - Tailspin - Space Game'
-              appName: '$(WebAppNameStaging)'
-              package: '$(Pipeline.Workspace)/drop/$(buildConfiguration)/*.zip'
+              azureSubscription: Resource Manager - Tailspin - Space Game
+              deployToSlotOrASE: "true"
+              resourceGroupName: tailspin-space-game-rg
+              slotName: swap
+              appName: $(WebAppNameStaging)
+              package: $(Pipeline.Workspace)/drop/$(buildConfiguration)/*.zip
+          - task: AzureAppServiceManage@0
+            displayName: Swap deployment slots
+            inputs:
+              azureSubscription: Resource Manager - Tailspin - Space Game
+              resourceGroupName: tailspin-space-game-rg
+              webAppName: $(WebAppNameStaging)
+              sourceSlot: swap
+              targetSlot: production
+              action: Swap Slots
+
