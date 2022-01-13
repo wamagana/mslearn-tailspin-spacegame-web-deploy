@@ -145,7 +145,7 @@ stages:
         wget -c ftp.ps.pl/pub/apache/jmeter/binaries/apache-jmeter-$(jmeterVersion).tgz
 
         tar -xzf apache-jmeter-$(jmeterVersion).tgz
-    displayName: Install Apache Meter
+      displayName: Install Apache Meter
   - script: apache-meter-$(jmeterVersion)/bin/./jmeter -n -t LoadTest.jmx -o Results.xml -Jhostname=$(STAGING_HOSTNAME)
     displayName: Run Load tests
   - script: >
